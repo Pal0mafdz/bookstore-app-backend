@@ -19,3 +19,16 @@ export const validateMyUserRequest = [
     handleValidationErrors,
 ];
 
+export const validateMyBookRequest = [
+    body("name").notEmpty().withMessage("Name is required"),
+    body("price").isFloat({ min: 0 }).withMessage("Price must be a positive number"),
+    body("genres").isArray().withMessage("Genres must be an array").notEmpty().withMessage("Genres cant be empty"),
+    body("description").notEmpty().withMessage("Descriptionis re quired"),
+    body("author").notEmpty().withMessage("Author is required"),
+    body("city").notEmpty().withMessage("City is required"),
+    body("country").notEmpty().withMessage("Country is required"),
+    body("shippingCost").isFloat({ min: 0 }).withMessage("shipping price must be a positive number"),
+    body("estimatedShippingTime").isInt({ min: 0 }).withMessage("Estimated shipping time must be a positive integer"),
+    handleValidationErrors,
+
+];
