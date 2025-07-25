@@ -4,20 +4,73 @@ import cloudinary from "cloudinary";
 import mongoose from "mongoose";
 import { create } from "domain";
 
-const getMyBook = async(req: Request, res: Response) =>{
+
+// const getMyBook = async(req: Request, res: Response) =>{
+//     try{
+//         const book = await Book.findOne({user: req.userId});
+//         if(!book){
+//             res.status(404).json({message: "book not found"});
+//             return
+//         }
+//         res.status(200).json(book);
+//         // return
+
+
+//     }catch(error){
+//         console.log(error);
+//         res.status(500).json({message: "error fetching book"})
+//     }
+// }
+
+const getMyBookById = async(req: Request, res: Response)=>{
     try{
-        const book = await Book.findOne({user: req.userId});
+        const book = await Book.findOne({user: req.userId, _id: req.params.id, })
+
         if(!book){
-            res.status(404).json({message: "book not found"});
+            res.status(404).json({message: "book not found"})
             return
         }
         res.status(200).json(book);
+        return
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "error fetching the book"})
+
+    }
+}
+
+const getMyBooks = async(req: Request, res: Response) =>{
+    try{
+        const books = await Book.find({user: req.userId});
+        // if(!books){
+        //     res.status(404).json({message: "books not found"})
+        // }
+        res.status(200).json(books);
         // return
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "error fetching the books"})
+    }
+}
+
+const deleteMyBook = async(req: Request, res: Response)=>{
+    try{
+
+        const book = await Book.findOneAndDelete({user: req.userId, _id: req.params.id,});
+
+        if(!book){
+            res.status(404).json({ message: "Book not found" });
+            return
+        }
+        res.status(200).json(book);
+        return
 
 
     }catch(error){
         console.log(error);
-        res.status(500).json({message: "error fetching book"})
+        res.status(500).json({message: "error deleting the book"})
+
     }
 }
 
@@ -26,6 +79,7 @@ const updateMyBook = async (req: Request, res: Response)=>{
 
         const book = await Book.findOne({
             user: req.userId,
+            _id: req.params.id
         });
 
         if(!book){
@@ -105,7 +159,9 @@ const uploadImage = async (file: Express.Multer.File) =>{
 }
 
 export default{
-    getMyBook,
+    getMyBooks,
     createMyBook,
     updateMyBook,
+    deleteMyBook,
+    getMyBookById,
 }

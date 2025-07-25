@@ -29,7 +29,17 @@ const upload = multer({
 //   );
   
 //GET api/my/book
-router.get("/", jwtCheck, jwtParse, MyBookController.getMyBook)
+router.get("/", jwtCheck, jwtParse, MyBookController.getMyBooks);
+
+router.get("/:id", jwtCheck, jwtParse, MyBookController.getMyBookById);
+
+router.delete(
+    "/:id",
+    jwtCheck,
+    jwtParse,
+    MyBookController.deleteMyBook
+  );
+  
 
 router.post(
     "/",
@@ -40,7 +50,7 @@ router.post(
     MyBookController.createMyBook
   );
 
-  router.put("/", upload.single("imageFile"),
+  router.put("/:id", upload.single("imageFile"),
   validateMyBookRequest,
   jwtCheck,
   jwtParse,
