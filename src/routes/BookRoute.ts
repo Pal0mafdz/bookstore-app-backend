@@ -9,4 +9,8 @@ router.get("/search/:city", param("city").isString().trim().notEmpty().withMessa
 BookController.searchBook
 );
 
+//get the book
+router.get("/:bookId", param("bookId").isString().trim().notEmpty().withMessage("BookId parameter must be a valid string"),
+BookController.getBook);
+
 export default router;

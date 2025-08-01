@@ -6,6 +6,7 @@ import MyUserRoute from './routes/MyUserRoute';
 import { v2 as cloudinary } from 'cloudinary';
 import MyBookRoute from "./routes/MyBookRoute";
 import BookRoute from "./routes/BookRoute";
+import CartRoute from "./routes/CartRoute";
 //import myUserRoute from "./routes/MyUserRoutes";
 
 //cast
@@ -34,6 +35,7 @@ app.get("/health", async(req: Request, res: Response)=>{
 app.use("/api/my/user", MyUserRoute);
 app.use("/api/my/book", MyBookRoute);
 app.use("/api/book", BookRoute);
+app.use("/api/cart", CartRoute);
 
 app.listen(8000, () =>{
     console.log("server started on localhost:8000");

@@ -1,6 +1,26 @@
 import {Request, Response } from "express"
 import Book from "../models/book";
 
+const getBook = async (req: Request, res: Response)=>{
+    try{
+        const bookId = req.params.bookId;
+
+        const book = await Book.findById(bookId);
+
+        if(!book){
+            res.status(404).json({message: "book not founf"});
+            return
+        }
+        res.json(book);
+        return
+        
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({ message: "Something went wrong"});
+    }
+}
+
 const searchBook = async(req: Request, res: Response)=>{
     try{
         const city = req.params.city;
@@ -83,4 +103,5 @@ const searchBook = async(req: Request, res: Response)=>{
 
 export default {
     searchBook,
+    getBook,
 }
