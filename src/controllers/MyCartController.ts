@@ -72,9 +72,30 @@ const deleteFromMyCart = async(req: Request, res: Response) =>{
 
 }
 
+const getMyCart = async(req: Request, res: Response) =>{
+
+    try{
+    const userId = req.userId;
+    const cart = await Cart.findOne({user: userId}).populate("items.book");
+
+    if(!cart){
+        res.status(200).json({ items: [] });
+        return
+    }
+    res.status(200).json(cart);
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "Something went wrong"});    
+    }
+
+
+}
+
 export default{
     addMyCart,
     deleteFromMyCart,
+    getMyCart,
 }
 
 

@@ -6,6 +6,7 @@ import MyCartController from "../controllers/MyCartController";
 const router = express.Router();
 
 router.post("/cart", jwtCheck, jwtParse, MyCartController.addMyCart);
-router.delete("/cart:bookId", jwtCheck, jwtParse, MyCartController.deleteFromMyCart);
+router.delete("/cart/:bookId", jwtCheck, jwtParse, MyCartController.deleteFromMyCart);
+router.get("/cart", jwtCheck, jwtParse, MyCartController.getMyCart);
 
 export default router;
