@@ -7,6 +7,7 @@ import { v2 as cloudinary } from 'cloudinary';
 import MyBookRoute from "./routes/MyBookRoute";
 import BookRoute from "./routes/BookRoute";
 import CartRoute from "./routes/CartRoute";
+import OrderRoute from "./routes/OrderRoute";
 //import myUserRoute from "./routes/MyUserRoutes";
 
 //cast
@@ -36,6 +37,7 @@ app.use("/api/my/user", MyUserRoute);
 app.use("/api/my/book", MyBookRoute);
 app.use("/api/book", BookRoute);
 app.use("/api/cart", CartRoute);
+app.use("/api/order", OrderRoute);
 
 app.listen(8000, () =>{
     console.log("server started on localhost:8000");
