@@ -73,6 +73,7 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
             createdAt: new Date(),
         })
 
+        await newOrder.save();
         //deletes cart after creating an order
         await Cart.findOneAndDelete({user: req.userId});
 
@@ -90,6 +91,17 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
         const session = await STRIPE.checkout.sessions.create({
             mode: "payment",
             line_items,
+            metadata:{
+                orderId: newOrder._id.toString(),
+                sellers: JSON.stringify(itemswithDetails.map(item => item.seller?.toString())),
+
+            },
+            payment_intent_data: {
+                metadata: {
+                  orderId: newOrder._id.toString(),
+                  sellers: JSON.stringify(itemswithDetails.map(item => item.seller?.toString())),
+                },
+            },
             shipping_address_collection:{
                 allowed_countries: ["MX", "US"],
             },
@@ -115,7 +127,7 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
             return;
         }
 
-        await newOrder.save();
+        
         res.json({ url: session.url});
         
 
