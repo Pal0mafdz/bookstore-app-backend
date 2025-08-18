@@ -5,7 +5,8 @@ import Order from "../models/order";
 import Cart from "../models/cart";
 
 const STRIPE = new Stripe(process.env.STRIPE_API_KEY as string);
-const FRONTEND_URL = process.env.FRONTEND_URL as string
+const FRONTEND_URL = process.env.FRONTEND_URL as string;
+const STRIPE_ENDPOINT_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
 type CheckoutSessionRequest={
     cartItems:{
@@ -23,6 +24,39 @@ deliveryDetails: {
   };
   
 
+}
+
+//recieve events from a thrid party system or from a diff service
+const stripeWebhookHandler = async(req: Request, res: Response)=>{
+    let event;
+    try{
+        const sig = req.headers["stripe-signature"];
+        event = STRIPE.webhooks.constructEvent(req.body, sig as string, STRIPE_ENDPOINT_SECRET);
+
+
+
+    }catch(error: any){
+        console.log(error);
+        res.status(400).send(`Webhook error:${error.message}`);
+        return;
+        
+
+    }
+
+    if(event.type === "checkout.session.completed"){
+        const order = await Order.findById(event.data.object.metadata?.orderId);
+
+        if(!order){
+            res.status(404).json({message: "order not found"});
+            return;
+        }
+        order.totalAmount = event.data.object.amount_total;
+        order.status ="paid";
+
+        await order.save();
+
+    }
+    res.status(200).send();
 
 }
 
@@ -141,4 +175,5 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
 
 export default {
     createCheckoutSession,
+    stripeWebhookHandler,
 };
