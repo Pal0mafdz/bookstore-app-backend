@@ -5,6 +5,10 @@ const cartItemSchema = new mongoose.Schema({
     name: {type: String, required: true},
     quantity:{type: Number, required: true, default:1},
     seller: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, 
+    status: {
+        type: String,
+        enum: ["placed", "paid", "processing", "outForDelivery", "delivered"],
+    },
 
 })
 
@@ -19,10 +23,10 @@ const orderSchema = new mongoose.Schema({
     },
     cartItems: [cartItemSchema],
     totalAmount: Number,
-    status: {
-        type: String,
-        enum: ["placed", "paid", "processing", "shipped", "outForDelivery", "delivered"],
-    },
+    // status: {
+    //     type: String,
+    //     enum: ["placed", "paid", "processing", "outForDelivery", "delivered"],
+    // },
     createdAt: {type:Date, default: Date.now},
     
 })

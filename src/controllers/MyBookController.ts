@@ -3,24 +3,8 @@ import Book from '../models/book';
 import cloudinary from "cloudinary";
 import mongoose from "mongoose";
 import { create } from "domain";
+import Order from "../models/order";
 
-
-// const getMyBook = async(req: Request, res: Response) =>{
-//     try{
-//         const book = await Book.findOne({user: req.userId});
-//         if(!book){
-//             res.status(404).json({message: "book not found"});
-//             return
-//         }
-//         res.status(200).json(book);
-//         // return
-
-
-//     }catch(error){
-//         console.log(error);
-//         res.status(500).json({message: "error fetching book"})
-//     }
-// }
 
 const getMyBookById = async(req: Request, res: Response)=>{
     try{
@@ -39,6 +23,130 @@ const getMyBookById = async(req: Request, res: Response)=>{
 
     }
 }
+
+const getMyPurchases = async (req: Request, res: Response) => {
+    try {
+      const buyerId = req.userId;
+  
+      const orders = await Order.find({ user: buyerId })
+                                .populate("cartItems.book")
+                                .populate("user");
+  
+      if (!orders || orders.length === 0) {
+        res.status(404).json({ message: "No purchases found" });
+        return
+      }
+  
+      res.json(orders);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error fetching purchases" });
+    }
+  };
+  
+
+const getMyBookOrder = async(req: Request, res: Response) => {
+    try{
+
+        const sellerId = req.userId;
+
+        const orders = await Order.find({"cartItems.seller": sellerId}).populate("cartItems.book").populate("user");
+
+
+
+        if(!orders){
+            res.status(404).json({message: "No orders found"});
+            return
+        }
+
+        const filteredOrders = orders.map(order => {
+            const sellerItems = order.cartItems.filter(
+              (item: any) => item.seller.toString() === sellerId
+            );
+            return { ...order.toObject(), cartItems: sellerItems };
+          });
+      
+          res.json(filteredOrders);
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "error fetching the orders"});
+
+    }
+
+}
+
+// const updateOrderStatus = async(req: Request, res: Response)=> {
+//     try{
+//         // const seller = req.userId;
+
+//         // const {orderId, status} = req.body;
+
+//         // const order = await Order.findById(orderId).populate("cartItems.book");
+
+//         // if(!order){
+//         //     res.status(404).json({message: "Order not found"});
+//         //     return
+//         // }
+
+//         // const sellerItems = order.cartItems.filter(
+//         //     (item: any) => item.seller.toString() === seller
+//         // );
+
+//         // sellerItems.forEach((item: any)=> {
+//         //     item.status = status;
+//         // })
+
+//         // await order.save();
+
+
+//         // res.status(200).json(order);
+
+//         const seller = req.userId;
+//     const { orderId, status } = req.body;
+
+//     const order = await Order.findById(orderId).populate("cartItems.book");
+//     if (!order) {
+//       res.status(404).json({ message: "Order not found" });
+//       return;
+//     }
+
+//     // Filtrar items del vendedor
+//     const sellerItems = order.cartItems.filter(
+//       (item: any) => item.seller.toString() === seller
+//     );
+
+//     if (sellerItems.length === 0) {
+//       res.status(403).json({ message: "No items from this seller in order" });
+//       return;
+//     }
+
+//     // Actualizar solo los items de ese seller
+//     sellerItems.forEach((item: any) => {
+//       item.status = status;
+//     });
+
+//     await order.save();
+
+//     // Devolver SOLO los items del seller
+//     const filteredOrder = {
+//       _id: order._id,
+//       user: order.user,
+//       shippingDetails: order.shippingDetails,
+//       createdAt: order.createdAt,
+//       totalAmount: order.totalAmount,
+//       cartItems: sellerItems, // 👈 solo los del vendedor
+//     };
+
+//     res.status(200).json(filteredOrder);
+
+
+//     }catch(error){
+//         console.log(error);
+//         res.status(500).json({message: "Something went wrong"});
+//     }
+
+// }
 
 const getMyBooks = async(req: Request, res: Response) =>{
     try{
@@ -164,4 +272,7 @@ export default{
     updateMyBook,
     deleteMyBook,
     getMyBookById,
+    getMyBookOrder,
+    getMyPurchases,
+    // updateOrderStatus,
 }

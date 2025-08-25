@@ -31,6 +31,12 @@ const upload = multer({
 //GET api/my/book
 router.get("/", jwtCheck, jwtParse, MyBookController.getMyBooks);
 
+router.get("/order", jwtCheck, jwtParse, MyBookController.getMyBookOrder);
+
+router.get("/purchases", jwtCheck, jwtParse, MyBookController.getMyPurchases);
+
+// router.patch("/order/status", jwtCheck, jwtParse,MyBookController.updateOrderStatus );
+
 router.get("/:id", jwtCheck, jwtParse, MyBookController.getMyBookById);
 
 router.delete(

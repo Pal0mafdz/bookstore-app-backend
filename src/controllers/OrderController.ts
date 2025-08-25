@@ -8,6 +8,22 @@ const STRIPE = new Stripe(process.env.STRIPE_API_KEY as string);
 const FRONTEND_URL = process.env.FRONTEND_URL as string;
 const STRIPE_ENDPOINT_SECRET = process.env.STRIPE_WEBHOOK_SECRET as string;
 
+const getMyOrders = async(req: Request, res: Response) =>{
+    try{
+        const orders = await Order.find({user: req.userId}).populate("user").populate({
+            path: "cartItems.book",   
+            model: "Book",           
+        });;
+        res.json(orders);
+
+    }catch(error){
+        console.log(error);
+        res.status(500).json({message: "Something went wrong"});
+
+    }
+
+}
+
 type CheckoutSessionRequest={
     cartItems:{
         bookId: string;
@@ -51,7 +67,12 @@ const stripeWebhookHandler = async(req: Request, res: Response)=>{
             return;
         }
         order.totalAmount = event.data.object.amount_total;
-        order.status ="paid";
+
+
+        order.cartItems.forEach((item: any) => {
+            item.status= "paid";
+          });
+        // order.status ="paid";
 
         await order.save();
 
@@ -85,6 +106,7 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
                 price: book?.price,
                 shippingCost: book?.shippingCost,
                 seller: book?.user,
+                status: "placed",
             }
         })
 
@@ -95,13 +117,14 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
         const newOrder = new Order({
             
             user: req.userId,
-            status: "placed",
+            
             shippingDetails: deliveryDetails,
             cartItems: itemswithDetails.map(item => ({
                 book: item.book,
                 name: item.name,
                 quantity: item.quantity,
                 seller: item.seller,
+                status: item.status,
 
             })),
             createdAt: new Date(),
@@ -114,7 +137,7 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
         const line_items = itemswithDetails.map((item)=> ({
             price_data:{
                 currency: "usd",
-                unit_amount: Math.round(item.price|| 0),
+                unit_amount: Math.round((item.price|| 0)* 100),
                 product_data: {
                     name: item.name || "unamed book",
                 },  
@@ -176,4 +199,5 @@ const createCheckoutSession = async(req: Request, res: Response): Promise<void>=
 export default {
     createCheckoutSession,
     stripeWebhookHandler,
+    getMyOrders,
 };
